@@ -15,6 +15,10 @@ export function LoginPage() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!username.trim()) return;
+    if (username.trim().length < 6) {
+      setError("Username must be at least 6 characters.");
+      return;
+    }
 
     setError(null);
     setLoading(true);
@@ -53,7 +57,7 @@ export function LoginPage() {
                 disabled={loading}
               />
               {error && <p className="text-destructive text-sm">{error}</p>}
-              <Button type="submit" disabled={loading || !username.trim()}>
+              <Button type="submit" disabled={loading || username.trim().length < 6}>
                 {loading ? "Connecting…" : "Play"}
               </Button>
             </form>

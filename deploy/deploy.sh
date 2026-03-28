@@ -1,16 +1,9 @@
 #!/bin/bash
 set -e
 
-# ─────────────────────────────────────────────────────────────
-#  Lila Tic-Tac-Toe — full deploy script
-#  Run from repo root: bash deploy/deploy.sh
-#  Requires: setup-ec2.sh already ran, newgrp docker done
-# ─────────────────────────────────────────────────────────────
-
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 DEPLOY_DIR="$REPO_ROOT/deploy"
 
-# ── swap space (needed for npm builds on small instances) ─────
 if [ ! -f /swapfile ]; then
   echo "==> Adding 2GB swap (needed for npm build)..."
   sudo fallocate -l 2G /swapfile
@@ -20,7 +13,6 @@ if [ ! -f /swapfile ]; then
   echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
 fi
 
-# ── install PM2 globally if missing ──────────────────────────
 if ! command -v pm2 &> /dev/null; then
   echo "==> Installing PM2..."
   sudo npm install -g pm2
@@ -33,7 +25,6 @@ if [ -z "$PUBLIC_IP" ]; then
 fi
 echo "==> EC2 public IP: $PUBLIC_IP"
 
-# ── create .env if missing ────────────────────────────────────
 if [ ! -f "$DEPLOY_DIR/.env" ]; then
   cp "$DEPLOY_DIR/.env.example" "$DEPLOY_DIR/.env"
   DB_PASS=$(openssl rand -hex 16)
@@ -48,13 +39,11 @@ if [ ! -f "$DEPLOY_DIR/.env" ]; then
   echo ""
 fi
 
-# ── build server ──────────────────────────────────────────────
 echo "==> Building Nakama server module..."
 cd "$REPO_ROOT/server"
 npm ci --prefer-offline 2>/dev/null || npm install
 npm run build
 
-# ── build client ─────────────────────────────────────────────
 echo "==> Building React client..."
 cd "$REPO_ROOT/client"
 npm ci --prefer-offline 2>/dev/null || npm install
@@ -68,7 +57,7 @@ EOF
 
 npm run build
 
-# ── start Docker services (Postgres + Nakama only) ───────────
+# ── start Docker services (Postgres + Nakama) ───────────
 echo "==> Starting Docker services..."
 cd "$DEPLOY_DIR"
 docker compose -f docker-compose.prod.yml pull --quiet

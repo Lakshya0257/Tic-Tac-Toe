@@ -9,7 +9,13 @@ interface ResultOverlayProps {
   onLobby: () => void;
 }
 
-export function ResultOverlay({ gameOver, players, currentUserId, onPlayAgain, onLobby }: ResultOverlayProps) {
+export function ResultOverlay({
+  gameOver,
+  players,
+  currentUserId,
+  onPlayAgain,
+  onLobby,
+}: ResultOverlayProps) {
   const isDraw = gameOver.winner === "draw";
   const iWon = !isDraw && gameOver.winnerId === currentUserId;
 
@@ -17,7 +23,9 @@ export function ResultOverlay({ gameOver, players, currentUserId, onPlayAgain, o
   let subtitle = "Well played by both sides.";
 
   if (!isDraw) {
-    const winnerName = gameOver.winnerId ? players[gameOver.winnerId]?.username : "Unknown";
+    const winnerName = gameOver.winnerId
+      ? players[gameOver.winnerId]?.username
+      : "Unknown";
     if (iWon) {
       title = "You Won! 🎉";
       subtitle = "Outstanding move!";
@@ -41,8 +49,10 @@ export function ResultOverlay({ gameOver, players, currentUserId, onPlayAgain, o
           <p className="text-muted-foreground mt-1">{subtitle}</p>
         </div>
         <div className="flex gap-3">
-          <Button onClick={onPlayAgain}>Play Again</Button>
-          <Button variant="outline" onClick={onLobby}>Back to Lobby</Button>
+          <Button onClick={onLobby}>Back to Lobby</Button>
+          {/* <Button variant="outline" onClick={onLobby}>
+            Back to Lobby
+          </Button> */}
         </div>
       </div>
     </div>

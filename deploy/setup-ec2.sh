@@ -1,12 +1,6 @@
 #!/bin/bash
 set -e
 
-# ─────────────────────────────────────────────────────────────
-#  Lila Tic-Tac-Toe — EC2 bootstrap script
-#  Tested on: Amazon Linux 2023 (arm64 / x86_64)
-#  Run as:    bash setup-ec2.sh
-# ─────────────────────────────────────────────────────────────
-
 echo "==> [1/3] Installing Docker..."
 sudo dnf update -y
 sudo dnf install -y docker git
