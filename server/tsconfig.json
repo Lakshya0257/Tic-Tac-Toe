@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "ES5",
+    "lib": ["ES5", "ES2015", "ES2015.Collection", "ES2015.Iterable"],
+    "strict": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "typeRoots": ["./node_modules"],
+    "outDir": "./build"
+  },
+  "include": ["./src/**/*"],
+  "exclude": ["./node_modules"]
+}
