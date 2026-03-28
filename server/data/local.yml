@@ -1,0 +1,19 @@
+name: lila-nakama-dev
+
+logger:
+  level: "INFO"
+
+console:
+  username: "admin"
+  password: "password"
+  port: 7351
+
+runtime:
+  path: "/nakama/data/modules"
+  js_entrypoint: "index.js"
+
+socket:
+  port: 7350
+
+api:
+  port: 7350
