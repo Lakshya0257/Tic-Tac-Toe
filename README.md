@@ -24,6 +24,12 @@ Nakama console: **http://13.234.186.210:7351** (admin / password)
 
 ---
 
+## Screenshots
+
+<img width="2940" height="1592" alt="image" src="https://github.com/user-attachments/assets/ee544d4f-6a02-492a-8d83-4fb8035f46a9" />
+<img width="2940" height="1602" alt="image" src="https://github.com/user-attachments/assets/6731634d-bd98-4b49-83dd-a4bbb0a5fd04" />
+
+
 ## Architecture
 
 ```
