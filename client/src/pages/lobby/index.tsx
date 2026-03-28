@@ -2,22 +2,31 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMatchmaker } from "@/hooks/useMatchmaker";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Loader2, Clock, Hash } from "lucide-react";
 import { GameMode } from "@/types/game";
 
 export function LobbyPage() {
   const navigate = useNavigate();
-  const { status, matchId, error, startSearch, cancelSearch, reset } = useMatchmaker();
+  const { status, matchId, matchToken, error, startSearch, cancelSearch, reset } =
+    useMatchmaker();
 
   useEffect(() => {
     if (status === "matched" && matchId) {
-      navigate(`/game/${matchId}`);
+      navigate(`/game/${matchId}`, { state: { matchToken } });
     }
-  }, [status, matchId, navigate]);
+  }, [status, matchId, matchToken, navigate]);
 
   useEffect(() => {
-    return () => { reset(); };
+    return () => {
+      reset();
+    };
   }, [reset]);
 
   function handleStart(mode: GameMode) {
@@ -31,7 +40,9 @@ export function LobbyPage() {
       <div className="w-full max-w-md animate-fade-in">
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold">Find a Match</h1>
-          <p className="text-muted-foreground mt-1">Choose your game mode to get started.</p>
+          <p className="text-muted-foreground mt-1">
+            Choose your game mode to get started.
+          </p>
         </div>
 
         {isSearching ? (
@@ -56,7 +67,9 @@ export function LobbyPage() {
                 </div>
                 <div>
                   <CardTitle>Classic</CardTitle>
-                  <CardDescription>No time limit. Take your time.</CardDescription>
+                  <CardDescription>
+                    No time limit. Take your time.
+                  </CardDescription>
                 </div>
               </CardHeader>
             </Card>
@@ -71,7 +84,9 @@ export function LobbyPage() {
                 </div>
                 <div>
                   <CardTitle>Timed</CardTitle>
-                  <CardDescription>30 seconds per turn. Don't hesitate.</CardDescription>
+                  <CardDescription>
+                    30 seconds per turn. Don't hesitate.
+                  </CardDescription>
                 </div>
               </CardHeader>
             </Card>

@@ -6,6 +6,7 @@ interface MatchmakerState {
   status: "idle" | "searching" | "matched" | "error";
   ticket: string | null;
   matchId: string | null;
+  matchToken: string | null;
   error: string | null;
 }
 
@@ -15,6 +16,7 @@ export function useMatchmaker() {
     status: "idle",
     ticket: null,
     matchId: null,
+    matchToken: null,
     error: null,
   });
   const ticketRef = useRef<string | null>(null);
@@ -24,7 +26,18 @@ export function useMatchmaker() {
 
     socket.onmatchmakermatched = (matched) => {
       ticketRef.current = null;
-      setState({ status: "matched", ticket: null, matchId: matched.match_id, error: null });
+
+      // Nakama 3.22+ server-authoritative matches arrive with a signed JWT
+      // token (not a plain match_id). Decode the payload to get "mid".
+      let matchId = matched.match_id ?? null;
+      if (!matchId && matched.token) {
+        try {
+          const payload = JSON.parse(atob(matched.token.split(".")[1]));
+          matchId = payload.mid ?? null;
+        } catch {}
+      }
+
+      setState({ status: "matched", ticket: null, matchId, matchToken: matched.token ?? null, error: null });
     };
 
     return () => {
@@ -35,7 +48,7 @@ export function useMatchmaker() {
   const startSearch = useCallback(
     async (mode: GameMode) => {
       if (!socket) return;
-      setState({ status: "searching", ticket: null, matchId: null, error: null });
+      setState({ status: "searching", ticket: null, matchId: null, matchToken: null, error: null });
       try {
         const query = `+properties.game_mode:${mode}`;
         const result = await socket.addMatchmaker(query, 2, 2, { game_mode: mode }, {});
@@ -43,7 +56,7 @@ export function useMatchmaker() {
         setState((prev) => ({ ...prev, ticket: result.ticket }));
       } catch (err) {
         const msg = err instanceof Error ? err.message : "Failed to join matchmaker";
-        setState({ status: "error", ticket: null, matchId: null, error: msg });
+        setState({ status: "error", ticket: null, matchId: null, matchToken: null, error: msg });
       }
     },
     [socket]
@@ -56,13 +69,13 @@ export function useMatchmaker() {
     } catch (_) {}
     finally {
       ticketRef.current = null;
-      setState({ status: "idle", ticket: null, matchId: null, error: null });
+      setState({ status: "idle", ticket: null, matchId: null, matchToken: null, error: null });
     }
   }, [socket]);
 
   const reset = useCallback(() => {
     ticketRef.current = null;
-    setState({ status: "idle", ticket: null, matchId: null, error: null });
+    setState({ status: "idle", ticket: null, matchId: null, matchToken: null, error: null });
   }, []);
 
   return { ...state, startSearch, cancelSearch, reset };

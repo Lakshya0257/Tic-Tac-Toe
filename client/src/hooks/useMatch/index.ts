@@ -29,25 +29,34 @@ const INITIAL_STATE: MatchState = {
   gameOver: null,
 };
 
-export function useMatch(matchId: string | null) {
+export function useMatch(matchId: string | null, matchToken?: string | null) {
   const { socket, currentUserId } = useNakama();
   const [matchState, setMatchState] = useState<MatchState>(INITIAL_STATE);
   const [joinError, setJoinError] = useState<string | null>(null);
   const matchIdRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!socket || !matchId) return;
+    if (!socket) return;
+    if (!matchId && !matchToken) return;
 
-    matchIdRef.current = matchId;
+    // cancelled: effect was cleaned up before join resolved (React StrictMode double-invoke)
+    // joined: join resolved successfully — only then do we send leaveMatch on cleanup
+    let cancelled = false;
+    let joined = false;
+
+    matchIdRef.current = null;
     setMatchState(INITIAL_STATE);
     setJoinError(null);
 
     socket.onmatchdata = (data) => {
-      if (data.match_id !== matchId) return;
+      console.log("match data", data);
+      if (matchIdRef.current && data.match_id !== matchIdRef.current) return;
 
       let payload: unknown;
       try {
-        const raw = new TextDecoder().decode(data.data as unknown as ArrayBuffer);
+        const raw = new TextDecoder().decode(
+          data.data as unknown as ArrayBuffer,
+        );
         payload = JSON.parse(raw);
       } catch {
         return;
@@ -86,28 +95,49 @@ export function useMatch(matchId: string | null) {
       }
     };
 
-    socket.joinMatch(matchId).catch((err) => {
-      setJoinError(err instanceof Error ? err.message : "Failed to join match");
-    });
+    const joinPromise = matchToken
+      ? socket.joinMatch(undefined, matchToken)
+      : socket.joinMatch(matchId!);
+
+    joinPromise
+      .then((match) => {
+        if (!cancelled) {
+          matchIdRef.current = match.match_id;
+          joined = true;
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setJoinError(
+            err instanceof Error ? err.message : "Failed to join match",
+          );
+        }
+      });
 
     return () => {
+      cancelled = true;
       socket.onmatchdata = () => {};
-      if (matchIdRef.current) {
+      if (joined && matchIdRef.current) {
         socket.leaveMatch(matchIdRef.current).catch(() => {});
         matchIdRef.current = null;
       }
     };
-  }, [socket, matchId]);
+  }, [socket, matchId, matchToken]);
 
   const sendMove = useCallback(
     async (position: number) => {
-      if (!socket || !matchId) return;
+      const activeMatchId = matchIdRef.current;
+      if (!socket || !activeMatchId) return;
       if (matchState.phase !== "playing") return;
       if (matchState.currentTurn !== currentUserId) return;
       if (matchState.board[position] !== null) return;
-      await socket.sendMatchState(matchId, OpCode.MOVE, JSON.stringify({ position }));
+      await socket.sendMatchState(
+        activeMatchId,
+        OpCode.MOVE,
+        JSON.stringify({ position }),
+      );
     },
-    [socket, matchId, matchState, currentUserId]
+    [socket, matchState, currentUserId],
   );
 
   const mySymbol =

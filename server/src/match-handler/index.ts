@@ -72,12 +72,15 @@ export const matchJoin: nkruntime.MatchJoinFunction = function (_ctx, logger, _n
     var presence = presences[i];
     ms.presences[presence.userId] = presence;
 
-    var symbol: CellSymbol = ms.playerOrder.length === 0 ? "X" : "O";
-    var player: PlayerInfo = { userId: presence.userId, username: presence.username, symbol: symbol };
-    ms.players[presence.userId] = player;
-    ms.playerOrder.push(presence.userId);
-
-    logger.info("Player joined: %s as %s", presence.username, symbol);
+    if (!ms.players[presence.userId]) {
+      var symbol: CellSymbol = ms.playerOrder.length === 0 ? "X" : "O";
+      var player: PlayerInfo = { userId: presence.userId, username: presence.username, symbol: symbol };
+      ms.players[presence.userId] = player;
+      ms.playerOrder.push(presence.userId);
+      logger.info("Player joined: %s as %s", presence.username, symbol);
+    } else {
+      logger.info("Player rejoined: %s", presence.username);
+    }
   }
 
   if (Object.keys(ms.presences).length === 2) {

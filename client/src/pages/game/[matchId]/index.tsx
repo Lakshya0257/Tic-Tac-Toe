@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useMatch } from "@/hooks/useMatch";
 import { useNakama } from "@/context/NakamaContext";
 import { Board } from "@/components/board/Board";
@@ -10,17 +10,28 @@ import { TURN_DURATION_SECONDS } from "@/lib/constants";
 export function GamePage() {
   const { matchId } = useParams<{ matchId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { currentUserId } = useNakama();
-  const { matchState, mySymbol, isMyTurn, sendMove, joinError } = useMatch(matchId ?? null);
+  const matchToken =
+    (location.state as { matchToken?: string } | null)?.matchToken ?? null;
 
-  const { board, players, currentTurn, phase, timed, timeLeft, gameOver } = matchState;
+  const { matchState, mySymbol, isMyTurn, sendMove, joinError } = useMatch(
+    matchId ?? null,
+    matchToken,
+  );
+
+  const { board, players, currentTurn, phase, timed, timeLeft, gameOver } =
+    matchState;
   const hasPlayers = Object.keys(players).length === 2;
 
   if (joinError) {
     return (
       <div className="flex flex-1 items-center justify-center flex-col gap-4 text-center px-4">
         <p className="text-destructive font-medium">{joinError}</p>
-        <button className="text-sm text-muted-foreground underline" onClick={() => navigate("/lobby")}>
+        <button
+          className="text-sm text-muted-foreground underline"
+          onClick={() => navigate("/lobby")}
+        >
           Back to lobby
         </button>
       </div>
@@ -30,7 +41,9 @@ export function GamePage() {
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-4 py-8 gap-6 animate-fade-in">
       {!hasPlayers || phase === "waiting" ? (
-        <p className="text-muted-foreground animate-pulse">Waiting for opponent…</p>
+        <p className="text-muted-foreground animate-pulse">
+          Waiting for opponent…
+        </p>
       ) : (
         <>
           <GameInfo

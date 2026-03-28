@@ -7,12 +7,10 @@ import { App } from "./App";
 import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <NakamaProvider>
-        <App />
-        <Toaster theme="dark" position="top-right" />
-      </NakamaProvider>
-    </BrowserRouter>
-  </React.StrictMode>
+  <BrowserRouter>
+    <NakamaProvider>
+      <App />
+      <Toaster theme="dark" position="top-right" />
+    </NakamaProvider>
+  </BrowserRouter>
 );

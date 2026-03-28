@@ -10,6 +10,11 @@ import {
 import { matchmakerMatched } from "./matchmaker/index";
 import { initLeaderboards, rpcGetLeaderboard } from "./leaderboard/index";
 
+// Re-export so rollup IIFE exposes them as lila.* for the global-scope footer wrappers
+export { matchInit, matchJoin, matchJoinAttempt, matchLeave, matchLoop, matchSignal, matchTerminate };
+export { matchmakerMatched };
+export { initLeaderboards, rpcGetLeaderboard };
+
 export function InitModule(
   ctx: nkruntime.Context,
   logger: nkruntime.Logger,

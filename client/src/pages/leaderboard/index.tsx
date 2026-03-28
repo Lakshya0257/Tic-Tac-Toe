@@ -29,16 +29,22 @@ export function LeaderboardPage() {
         setEntries(data?.records ?? []);
       })
       .catch((err: Error) => {
-        setError(err instanceof Error ? err.message : "Failed to load leaderboard");
+        setError(
+          err instanceof Error ? err.message : "Failed to load leaderboard",
+        );
       })
       .finally(() => setLoading(false));
   }, [client, session]);
+
+  console.log(entries);
 
   return (
     <div className="flex flex-1 flex-col max-w-2xl mx-auto px-4 py-8 gap-6 animate-fade-in w-full">
       <div>
         <h1 className="text-2xl font-bold">Leaderboard</h1>
-        <p className="text-muted-foreground text-sm mt-1">Top 20 players by total wins.</p>
+        <p className="text-muted-foreground text-sm mt-1">
+          Top 20 players by total wins.
+        </p>
       </div>
 
       {loading && (
@@ -98,12 +104,10 @@ export function LeaderboardPage() {
                     {entry.draws}
                   </TableCell>
                   <TableCell className="text-right">
-                    {entry.bestStreak > 0 && (
-                      <Badge variant="secondary" className="gap-1">
-                        <Flame className="h-3 w-3" />
-                        {entry.bestStreak}
-                      </Badge>
-                    )}
+                    <Badge variant="secondary" className="gap-1">
+                      <Flame className="h-3 w-3" />
+                      {entry.bestStreak}
+                    </Badge>
                   </TableCell>
                 </TableRow>
               ))}

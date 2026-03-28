@@ -8,7 +8,7 @@ const STREAK_LEADERBOARD = "win_streak";
 export function initLeaderboards(nk: nkruntime.Nakama, logger: nkruntime.Logger): void {
   try {
     nk.leaderboardCreate(WINS_LEADERBOARD, true, nkruntime.SortOrder.DESCENDING, nkruntime.Operator.INCREMENTAL, "", {}, true);
-    nk.leaderboardCreate(STREAK_LEADERBOARD, true, nkruntime.SortOrder.DESCENDING, nkruntime.Operator.BEST, "", {}, true);
+    nk.leaderboardCreate(STREAK_LEADERBOARD, true, nkruntime.SortOrder.DESCENDING, nkruntime.Operator.SET, "", {}, true);
     logger.info("Leaderboards initialised.");
   } catch (e: any) {
     logger.error("Failed to create leaderboards: %s", e.message);
@@ -62,8 +62,8 @@ export function recordMatchResult(nk: nkruntime.Nakama, logger: nkruntime.Logger
       writePlayerStats(nk, userId, stats);
       if (didWin) {
         nk.leaderboardRecordWrite(WINS_LEADERBOARD, userId, player.username, 1, 0, {});
-        nk.leaderboardRecordWrite(STREAK_LEADERBOARD, userId, player.username, stats.bestStreak, 0, {});
       }
+      nk.leaderboardRecordWrite(STREAK_LEADERBOARD, userId, player.username, stats.currentStreak, 0, {});
     } catch (e: any) {
       logger.error("Failed to write stats for %s: %s", userId, e.message);
     }
@@ -86,7 +86,7 @@ export const rpcGetLeaderboard: nkruntime.RpcFunction = function (_ctx, logger, 
         wins: stats.wins,
         losses: stats.losses,
         draws: stats.draws,
-        bestStreak: stats.bestStreak,
+        bestStreak: stats.currentStreak,
       });
     }
 

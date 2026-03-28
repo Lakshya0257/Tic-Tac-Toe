@@ -3,7 +3,7 @@ import { useNakama } from "@/context/NakamaContext";
 import { Header } from "@/components/layout/Header";
 import { LoginPage } from "@/pages/login";
 import { LobbyPage } from "@/pages/lobby";
-import { GamePage } from "@/pages/game";
+import { GamePage } from "@/pages/game/[matchId]";
 import { LeaderboardPage } from "@/pages/leaderboard";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
