@@ -1,32 +1,38 @@
 #!/bin/bash
 set -e
 
-echo "==> Installing Docker..."
-sudo apt-get update -y
-sudo apt-get install -y ca-certificates curl gnupg
-sudo install -m 0755 -d /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-sudo chmod a+r /etc/apt/keyrings/docker.gpg
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
-  https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-sudo apt-get update -y
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
-sudo systemctl enable docker
+# ─────────────────────────────────────────────────────────────
+#  Lila Tic-Tac-Toe — EC2 bootstrap script
+#  Tested on: Amazon Linux 2023 (arm64 / x86_64)
+#  Run as:    bash setup-ec2.sh
+# ─────────────────────────────────────────────────────────────
+
+echo "==> [1/3] Installing Docker..."
+sudo dnf update -y
+sudo dnf install -y docker git
+
+sudo systemctl enable --now docker
 sudo usermod -aG docker $USER
 
-echo "==> Installing Node.js 20..."
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt-get install -y nodejs
+# docker compose v2 plugin
+DOCKER_COMPOSE_VERSION="2.27.1"
+ARCH=$(uname -m)
+[ "$ARCH" = "aarch64" ] && ARCH_TAG="aarch64" || ARCH_TAG="x86_64"
+sudo mkdir -p /usr/local/lib/docker/cli-plugins
+sudo curl -SL "https://github.com/docker/compose/releases/download/v${DOCKER_COMPOSE_VERSION}/docker-compose-linux-${ARCH_TAG}" \
+  -o /usr/local/lib/docker/cli-plugins/docker-compose
+sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+docker compose version
 
-echo "==> Done. Re-login or run: newgrp docker"
+echo "==> [2/3] Installing Node.js 20..."
+sudo dnf install -y nodejs npm
+node -v && npm -v
+
+echo "==> [3/3] Done. Apply docker group now:"
 echo ""
-echo "Next steps (after re-login):"
-echo "  1. Clone the repo: git clone <your-repo-url> ~/lila"
-echo "  2. cd ~/lila"
-echo "  3. Build server:   cd server && npm install && npm run build && cd .."
-echo "  4. Build client:   cd client && npm install && npm run build && cd .."
-echo "  5. Copy env file:  cp deploy/.env.example deploy/.env && nano deploy/.env"
-echo "  6. Start services: cd deploy && docker compose -f docker-compose.prod.yml up -d"
-echo "  7. Check logs:     docker compose -f docker-compose.prod.yml logs -f"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo " Run this next (one time, to pick up the docker group):"
+echo "   newgrp docker"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+echo "Then run deploy.sh to build and start everything."

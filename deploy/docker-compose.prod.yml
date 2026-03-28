@@ -5,7 +5,6 @@ services:
     container_name: lila_postgres
     image: postgres:16-alpine
     restart: unless-stopped
-    env_file: .env
     environment:
       POSTGRES_DB: nakama
       POSTGRES_USER: postgres
@@ -20,20 +19,24 @@ services:
 
   nakama:
     container_name: lila_nakama
-    image: registry.heroiclabs.com/heroiclabs/nakama:3.22.0
+    image: registry.heroiclabs.com/heroiclabs/nakama:3.37.0
     restart: unless-stopped
     entrypoint:
       - "/bin/sh"
       - "-ecx"
       - >
         /nakama/nakama migrate up
-        --database.address postgres:${DB_PASSWORD}@postgres:5432/nakama &&
+        --database.address postgres:${DB_PASSWORD}@postgres:5432/nakama
+        --config /nakama/data/local.yml &&
         exec /nakama/nakama
         --config /nakama/data/local.yml
         --database.address postgres:${DB_PASSWORD}@postgres:5432/nakama
+        --session.token_expiry_sec 7200
     volumes:
       - ../server/build:/nakama/data/modules
       - ../server/data:/nakama/data
+    ports:
+      - "7351:7351"   # Admin console (restrict in security group to your IP)
     depends_on:
       postgres:
         condition: service_healthy
