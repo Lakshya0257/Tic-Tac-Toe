@@ -7,7 +7,7 @@ const STREAK_LEADERBOARD = "win_streak";
 
 export function initLeaderboards(nk: nkruntime.Nakama, logger: nkruntime.Logger): void {
   try {
-    nk.leaderboardCreate(WINS_LEADERBOARD, true, nkruntime.SortOrder.DESCENDING, nkruntime.Operator.INCREMENT, "", {}, true);
+    nk.leaderboardCreate(WINS_LEADERBOARD, true, nkruntime.SortOrder.DESCENDING, nkruntime.Operator.INCREMENTAL, "", {}, true);
     nk.leaderboardCreate(STREAK_LEADERBOARD, true, nkruntime.SortOrder.DESCENDING, nkruntime.Operator.BEST, "", {}, true);
     logger.info("Leaderboards initialised.");
   } catch (e: any) {

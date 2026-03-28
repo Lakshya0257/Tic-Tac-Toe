@@ -4,10 +4,10 @@ export const matchmakerMatched: nkruntime.MatchmakerMatchedFunction = function (
     return;
   }
 
-  var firstMatch = matches[0];
   var gameMode = "classic";
-  if (firstMatch.users && firstMatch.users.length > 0 && firstMatch.users[0].stringProperties) {
-    gameMode = firstMatch.users[0].stringProperties["game_mode"] || "classic";
+  var first = matches[0];
+  if (first && first.properties && first.properties["game_mode"]) {
+    gameMode = first.properties["game_mode"];
   }
 
   try {

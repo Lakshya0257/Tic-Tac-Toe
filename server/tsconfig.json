@@ -6,6 +6,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "typeRoots": ["./node_modules"],
+    "types": ["nakama-runtime"],
     "outDir": "./build"
   },
   "include": ["./src/**/*"],
