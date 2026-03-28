@@ -44,10 +44,10 @@ echo "==> Building React client..."
 cd "$REPO_ROOT/client"
 npm ci --silent
 
-# Write prod env — client connects to same host via nginx /nakama/ proxy
+# Write prod env — client connects directly to Nakama on port 7350
 cat > .env.production << EOF
 VITE_NAKAMA_HOST=$PUBLIC_IP
-VITE_NAKAMA_PORT=80
+VITE_NAKAMA_PORT=7350
 VITE_NAKAMA_USE_SSL=false
 VITE_NAKAMA_SERVER_KEY=defaultkey
 EOF
